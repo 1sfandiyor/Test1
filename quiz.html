@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elementary Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .page {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #2a2a4a;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #00f2ff;
+        }
+
+        h1 {
+            color: #00f2ff;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            text-shadow: 0 0 10px #00f2ff;
+        }
+
+        h2 {
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .selection-section {
+            margin-bottom: 30px;
+        }
+
+        .difficulty-buttons, .subject-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .difficulty-btn, .subject-btn {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #0f3460;
+            color: #00f2ff;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .difficulty-btn:hover, .subject-btn:hover {
+            background: #1b4f8a;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.8);
+        }
+
+        .difficulty-btn.active, .subject-btn.active {
+            background: #00f2ff;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 1);
+        }
+
+        .quiz-info {
+            color: #a0a0a0;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .start-btn {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            background: #ff007a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 122, 0.5);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background: #cc0061;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.8);
+        }
+
+        .start-btn:disabled {
+            background: #4a4a6a;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .timer {
+            background: #ff007a;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.5);
+        }
+
+        .timer.warning {
+            background: #ffcc00;
+            color: #1a1a2e;
+            animation: pulse 1s infinite;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .question-counter {
+            background: #0f3460;
+            color: #00f2ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #4a4a6a;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid #00f2ff;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00f2ff;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px #00f2ff;
+        }
+
+        .question {
+            background: #3a3a5a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            color: #e0e0e0;
+            text-align: left;
+            border: 1px solid #00f2ff;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #4a4a6a;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #2a2a4a;
+            color: #e0e0e0;
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        .option:hover {
+            border-color: #00f2ff;
+            background: #3a3a5a;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+        }
+
+        .option.selected {
+            border-color: #ff007a;
+            background: #ff007a;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.5);
+        }
+
+        .next-btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: #ff007a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 0, 122, 0.5);
+        }
+
+        .next-btn:hover:not(:disabled) {
+            background: #cc0061;
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.8);
+        }
+
+        .next-btn:disabled {
+            background: #4a4a6a;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .subject-badge {
+            display: inline-block;
+            background: #0f3460;
+            color: #00f2ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .score-summary {
+            background: linear-gradient(135deg, #ff007a, #ff4d94);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.5);
+        }
+
+        .score-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #ffffff;
+        }
+
+        .score-text {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #2a2a4a;
+            border: 2px solid #4a4a6a;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        .correct-stat { border-color: #00ff88; }
+        .correct-stat .stat-number { color: #00ff88; }
+
+        .incorrect-stat { border-color: #ff007a; }
+        .incorrect-stat .stat-number { color: #ff007a; }
+
+        .unanswered-stat { border-color: #ffcc00; }
+        .unanswered-stat .stat-number { color: #ffcc00; }
+
+        .results-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #00f2ff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #00f2ff;
+            text-align: left;
+            text-shadow: 0 0 5px #00f2ff;
+        }
+
+        .question-result {
+            background: #3a3a5a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #4a4a6a;
+            text-align: left;
+        }
+
+        .question-result.correct {
+            border-left-color: #00ff88;
+            background: #2a3a4a;
+        }
+
+        .question-result.incorrect {
+            border-left-color: #ff007a;
+            background: #3a2a4a;
+        }
+
+        .question-result.unanswered {
+            border-left-color: #ffcc00;
+            background: #3a3a4a;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            font-size: 1.1em;
+        }
+
+        .answer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .answer-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #00f2ff;
+        }
+
+        .answer-value {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .correct-answer {
+            background: #004d2a;
+            color: #00ff88;
+        }
+
+        .user-answer.correct {
+            background: #004d2a;
+            color: #00ff88;
+        }
+
+        .user-answer.incorrect {
+            background: #4d0026;
+            color: #ff007a;
+        }
+
+        .user-answer.unanswered {
+            background: #4d3d00;
+            color: #ffcc00;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-correct {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .status-incorrect {
+            background: #ff007a;
+            color: white;
+        }
+
+        .status-unanswered {
+            background: #ffcc00;
+            color: #1a1a2e;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .btn-primary {
+            background: #00f2ff;
+            color: #1a1a2e;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .btn-primary:hover {
+            background: #00d2e0;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.8);
+        }
+
+        .btn-secondary {
+            background: #ff007a;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 0, 122, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: #cc0061;
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 0, 122, 0.8);
+        }
+
+        .powered-by {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: #4a4a6a;
+            font-size: 0.9em;
+            font-weight: bold;
+            opacity: 0.3;
+            transition: all 0.3s ease;
+        }
+
+        .powered-by:hover {
+            color: #00f2ff;
+            opacity: 1;
+            text-shadow: 0 0 10px #00f2ff, 0 0 20px #00f2ff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .difficulty-buttons, .subject-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .difficulty-btn, .subject-btn {
+                width: 200px;
+            }
+            
+            .score-number {
+                font-size: 2.5em;
+            }
+            
+            .answer-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .answer-label {
+                min-width: auto;
+            }
+            
+            .answer-value {
+                width: 100%;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+            }
+            
+            .powered-by {
+                font-size: 0.8em;
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+
+        @keyframes neonGlow {
+            0% { text-shadow: 0 0 5px #00f2ff, 0 0 10px #00f2ff; }
+            50% { text-shadow: 0 0 10px #00f2ff, 0 0 20px #00f2ff; }
+            100% { text-shadow: 0 0 5px #00f2ff, 0 0 10px #00f2ff; }
+        }
+
+        .container:hover h1 {
+            animation: neonGlow 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Selection Screen -->
+    <div class="page" id="selectionPage">
+        <div class="container">
+            <h1>Elementary Quiz</h1>
+            
+            <div class="selection-section">
+                <h2>Choose Your Difficulty</h2>
+                <div class="difficulty-buttons">
+                    <button class="difficulty-btn" onclick="selectDifficulty('beginner')">Beginner</button>
+                    <button class="difficulty-btn" onclick="selectDifficulty('intermediate')">Intermediate</button>
+                    <button class="difficulty-btn" onclick="selectDifficulty('advanced')">Advanced</button>
+                </div>
+            </div>
+
+            <div class="selection-section">
+                <h2>Choose Your Subject</h2>
+                <div class="subject-buttons">
+                    <button class="subject-btn" onclick="selectSubject('math')">Math</button>
+                    <button class="subject-btn" onclick="selectSubject('english')">English</button>
+                </div>
+            </div>
+
+            <p class="quiz-info" id="quizInfo">Please select difficulty and subject</p>
+            <button class="start-btn" id="startBtn" onclick="startQuiz()" disabled>Start Quiz</button>
+        </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div class="page" id="quizPage" style="display: none;">
+        <div class="container">
+            <div class="timer" id="timer">Time: 0:20</div>
+            <div class="question-counter" id="questionCounter">Question 1 of 20</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 5%"></div>
+            </div>
+            <div class="question" id="question">Question will appear here</div>
+            <div class="options" id="options"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div class="page" id="resultsPage" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <h1>Quiz Results</h1>
+                <div class="subject-badge" id="subjectBadge">Subject</div>
+            </div>
+            <div class="score-summary">
+                <div class="score-number" id="scoreNumber">0/20</div>
+                <div class="score-text" id="scoreText">Great job!</div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card correct-stat">
+                    <div class="stat-number" id="correctCount">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-card incorrect-stat">
+                    <div class="stat-number" id="incorrectCount">0</div>
+                    <div class="stat-label">Incorrect</div>
+                </div>
+                <div class="stat-card unanswered-stat">
+                    <div class="stat-number" id="unansweredCount">0</div>
+                    <div class="stat-label">Unanswered</div>
+                </div>
+            </div>
+            <div class="results-section">
+                <h2 class="section-title">Detailed Results</h2>
+                <div id="detailedResults"></div>
+            </div>
+            <div class="actions">
+                <button onclick="restartQuiz()" class="btn btn-primary">Take Another Quiz</button>
+                <button onclick="window.print()" class="btn btn-secondary">Print Results</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="powered-by">Powered by ISFANDIYOR</div>
+
+    <script>
+        const questions = {
+            math: {
+                beginner: [
+                    { question: "What is 2 + 3?", options: ["4", "5", "6", "7"], correct: 1 },
+                    { question: "What is 6 - 2?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 3 × 2?", options: ["5", "6", "7", "8"], correct: 1 },
+                    { question: "What is 8 ÷ 2?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 4 + 5?", options: ["8", "9", "10", "11"], correct: 1 },
+                    { question: "What is 7 - 3?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 5 × 2?", options: ["8", "9", "10", "11"], correct: 2 },
+                    { question: "What is 10 ÷ 2?", options: ["4", "5", "6", "7"], correct: 1 },
+                    { question: "What is 6 + 4?", options: ["9", "10", "11", "12"], correct: 1 },
+                    { question: "What is 9 - 5?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 4 × 3?", options: ["10", "11", "12", "13"], correct: 2 },
+                    { question: "What is 12 ÷ 3?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 7 + 2?", options: ["8", "9", "10", "11"], correct: 1 },
+                    { question: "What is 8 - 4?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 2 × 5?", options: ["8", "9", "10", "11"], correct: 2 },
+                    { question: "What is 15 ÷ 3?", options: ["4", "5", "6", "7"], correct: 1 },
+                    { question: "What is 3 + 6?", options: ["8", "9", "10", "11"], correct: 1 },
+                    { question: "What is 10 - 6?", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is 4 × 2?", options: ["6", "7", "8", "9"], correct: 2 },
+                    { question: "What is 9 ÷ 3?", options: ["2", "3", "4", "5"], correct: 1 }
+                ],
+                intermediate: [
+                    { question: "What is 15 + 27?", options: ["40", "41", "42", "43"], correct: 2 },
+                    { question: "What is 53 - 19?", options: ["32", "33", "34", "35"], correct: 2 },
+                    { question: "What is 7 × 8?", options: ["54", "55", "56", "57"], correct: 2 },
+                    { question: "What is 72 ÷ 9?", options: ["7", "8", "9", "10"], correct: 1 },
+                    { question: "What is 12 + 19?", options: ["30", "31", "32", "33"], correct: 1 },
+                    { question: "What is 45 - 28?", options: ["16", "17", "18", "19"], correct: 1 },
+                    { question: "What is 9 × 6?", options: ["52", "53", "54", "55"], correct: 2 },
+                    { question: "What is 64 ÷ 8?", options: ["7", "8", "9", "10"], correct: 1 },
+                    { question: "What is 3²?", options: ["6", "7", "8", "9"], correct: 2 },
+                    { question: "What is 100 - 37?", options: ["62", "63", "64", "65"], correct: 1 },
+                    { question: "What is 12 × 4?", options: ["46", "47", "48", "49"], correct: 2 },
+                    { question: "What is 81 ÷ 9?", options: ["8", "9", "10", "11"], correct: 1 },
+                    { question: "What is 25 + 18?", options: ["42", "43", "44", "45"], correct: 1 },
+                    { question: "What is 60 - 42?", options: ["17", "18", "19", "20"], correct: 1 },
+                    { question: "What is 5 × 9?", options: ["44", "45", "46", "47"], correct: 1 },
+                    { question: "What is 36 ÷ 4?", options: ["8", "9", "10", "11"], correct: 1 },
+                    { question: "What is 2³?", options: ["6", "7", "8", "9"], correct: 2 },
+                    { question: "What is 75 - 29?", options: ["45", "46", "47", "48"], correct: 1 },
+                    { question: "What is 11 × 5?", options: ["54", "55", "56", "57"], correct: 1 },
+                    { question: "What is 90 ÷ 10?", options: ["8", "9", "10", "11"], correct: 1 }
+                ],
+                advanced: [
+                    { question: "Solve for x: 2x + 5 = 11", options: ["2", "3", "4", "5"], correct: 1 },
+                    { question: "What is the area of a triangle with base 6 and height 4?", options: ["10", "12", "14", "16"], correct: 1 },
+                    { question: "What is 5² + 3²?", options: ["32", "33", "34", "35"], correct: 2 },
+                    { question: "Solve: 3x - 7 = 8", options: ["4", "5", "6", "7"], correct: 1 },
+                    { question: "What is the perimeter of a rectangle with length 8 and width 5?", options: ["24", "26", "28", "30"], correct: 1 },
+                    { question: "What is 15% of 80?", options: ["10", "11", "12", "13"], correct: 2 },
+                    { question: "Solve: 4x + 3 = 19", options: ["3", "4", "5", "6"], correct: 1 },
+                    { question: "What is the circumference of a circle with radius 7? (Use π ≈ 3.14)", options: ["43.96", "44.96", "45.96", "46.96"], correct: 0 },
+                    { question: "What is 2⁴?", options: ["14", "15", "16", "17"], correct: 2 },
+                    { question: "Solve: 5x - 10 = 15", options: ["4", "5", "6", "7"], correct: 1 },
+                    { question: "What is the area of a circle with radius 5? (Use π ≈ 3.14)", options: ["77.5", "78.5", "79.5", "80.5"], correct: 1 },
+                    { question: "What is 20% of 150?", options: ["28", "29", "30", "31"], correct: 2 },
+                    { question: "Solve: 2x² = 8", options: ["1", "2", "3", "4"], correct: 1 },
+                    { question: "What is the volume of a cube with side 3?", options: ["24", "25", "26", "27"], correct: 3 },
+                    { question: "What is 7² - 4²?", options: ["31", "32", "33", "34"], correct: 2 },
+                    { question: "Solve: 3x + 9 = 18", options: ["2", "3", "4", "5"], correct: 1 },
+                    { question: "What is the slope of the line y = 2x + 3?", options: ["1", "2", "3", "4"], correct: 1 },
+                    { question: "What is 25% of 200?", options: ["48", "49", "50", "51"], correct: 2 },
+                    { question: "Solve: x/2 + 5 = 10", options: ["8", "9", "10", "11"], correct: 2 },
+                    { question: "What is the area of a rectangle with length 10 and width 6?", options: ["58", "59", "60", "61"], correct: 2 }
+                ]
+            },
+            english: {
+                beginner: [
+                    { question: "Which is a noun?", options: ["Run", "Happy", "Dog", "Quick"], correct: 2 },
+                    { question: "What is the plural of 'cat'?", options: ["Cats", "Cat", "Cates", "Catss"], correct: 0 },
+                    { question: "Which word rhymes with 'hat'?", options: ["Bat", "Hit", "Hot", "Hut"], correct: 0 },
+                    { question: "What is the opposite of 'big'?", options: ["Small", "Large", "Huge", "Tall"], correct: 0 },
+                    { question: "Which is a verb?", options: ["Book", "Jump", "Red", "Table"], correct: 1 },
+                    { question: "What comes after 'B'?", options: ["A", "C", "D", "E"], correct: 1 },
+                    { question: "Which word is spelled correctly?", options: ["Frend", "Friend", "Freind", "Frind"], correct: 1 },
+                    { question: "What is the past tense of 'run'?", options: ["Run", "Runs", "Ran", "Running"], correct: 2 },
+                    { question: "Which word starts with a vowel?", options: ["Dog", "Apple", "Cat", "Ball"], correct: 1 },
+                    { question: "What is the opposite of 'hot'?", options: ["Cold", "Warm", "Cool", "Freezing"], correct: 0 },
+                    { question: "Which is an adjective?", options: ["Sing", "Beautiful", "Run", "Dance"], correct: 1 },
+                    { question: "What is the plural of 'dog'?", options: ["Dogs", "Doges", "Dogss", "Dog"], correct: 0 },
+                    { question: "Which word rhymes with 'sun'?", options: ["Fun", "Moon", "Star", "Sky"], correct: 0 },
+                    { question: "What is the opposite of 'up'?", options: ["Down", "Over", "Under", "Above"], correct: 0 },
+                    { question: "Which sentence is correct?", options: ["I is happy", "I am happy", "I are happy", "I be happy"], correct: 1 },
+                    { question: "What is the first letter of the alphabet?", options: ["A", "B", "C", "D"], correct: 0 },
+                    { question: "Which word is a color?", options: ["Fast", "Blue", "Loud", "Soft"], correct: 1 },
+                    { question: "What is the opposite of 'happy'?", options: ["Sad", "Glad", "Joyful", "Excited"], correct: 0 },
+                    { question: "Which word has 3 letters?", options: ["Cat", "Dog", "Bird", "Fish"], correct: 0 },
+                    { question: "What comes before 'C'?", options: ["A", "B", "D", "E"], correct: 1 }
+                ],
+                intermediate: [
+                    { question: "Which is a pronoun?", options: ["Run", "He", "Big", "Fast"], correct: 1 },
+                    { question: "What is the plural of 'child'?", options: ["Childs", "Children", "Childes", "Childss"], correct: 1 },
+                    { question: "Which is the correct sentence?", options: ["She run fast", "She runs fast", "She running fast", "She runned fast"], correct: 1 },
+                    { question: "What is the past tense of 'go'?", options: ["Went", "Goes", "Going", "Gone"], correct: 0 },
+                    { question: "Which is an adverb?", options: ["Quickly", "Book", "Red", "Table"], correct: 0 },
+                    { question: "What is the opposite of 'fast'?", options: ["Quick", "Slow", "Rapid", "Swift"], correct: 1 },
+                    { question: "Which word is spelled correctly?", options: ["Recieve", "Receive", "Receeve", "Recive"], correct: 1 },
+                    { question: "What is the plural of 'mouse'?", options: ["Mouses", "Mice", "Mousees", "Mouce"], correct: 1 },
+                    { question: "Which is a conjunction?", options: ["And", "Run", "Big", "Happy"], correct: 0 },
+                    { question: "What is the past tense of 'eat'?", options: ["Eated", "Eaten", "Ate", "Eats"], correct: 2 },
+                    { question: "Which word means the same as 'happy'?", options: ["Sad", "Joyful", "Angry", "Tired"], correct: 1 },
+                    { question: "Which is the correct sentence?", options: ["They is playing", "They are playing", "They be playing", "They plays"], correct: 1 },
+                    { question: "What is the opposite of 'strong'?", options: ["Weak", "Powerful", "Big", "Tall"], correct: 0 },
+                    { question: "Which word is an adjective?", options: ["Run", "Beautiful", "Sing", "Dance"], correct: 1 },
+                    { question: "What is the plural of 'foot'?", options: ["Foots", "Feet", "Feets", "Footes"], correct: 1 },
+                    { question: "Which is a preposition?", options: ["Under", "Run", "Big", "Fast"], correct: 0 },
+                    { question: "What is the past tense of 'write'?", options: ["Writed", "Wrote", "Written", "Writes"], correct: 1 },
+                    { question: "Which word means the same as 'big'?", options: ["Small", "Large", "Tiny", "Little"], correct: 1 },
+                    { question: "Which sentence is correct?", options: ["He go to school", "He goes to school", "He going to school", "He gone to school"], correct: 1 },
+                    { question: "What is the opposite of 'high'?", options: ["Tall", "Low", "Big", "Wide"], correct: 1 }
+                ],
+                advanced: [
+                    { question: "What is the subject in: 'The cat chased the mouse'?", options: ["The cat", "Chased", "The mouse", "None"], correct: 0 },
+                    { question: "Which sentence uses correct punctuation?", options: ["I love to read books.", "I love to read books", "I love to read, books.", "I love to read books,"], correct: 0 },
+                    { question: "What is the synonym of 'enormous'?", options: ["Tiny", "Huge", "Small", "Little"], correct: 1 },
+                    { question: "Which is a compound sentence?", options: ["I run.", "I run and jump.", "I run, and she jumps.", "I run fast."], correct: 2 },
+                    { question: "What is the past participle of 'drink'?", options: ["Drank", "Drunk", "Drinking", "Drinks"], correct: 1 },
+                    { question: "Which word is an antonym of 'generous'?", options: ["Kind", "Selfish", "Giving", "Helpful"], correct: 1 },
+                    { question: "Which sentence is in passive voice?", options: ["She wrote the book.", "The book was written by her.", "She writes books.", "The book writes itself."], correct: 1 },
+                    { question: "What is the meaning of 'metaphor'?", options: ["A direct comparison", "An exaggeration", "A question", "A repetition"], correct: 0 },
+                    { question: "Which is a complex sentence?", options: ["I run.", "I run and jump.", "Although I was tired, I ran.", "I run fast."], correct: 2 },
+                    { question: "What is the plural of 'analysis'?", options: ["Analyses", "Analysises", "Analysiss", "Analysis"], correct: 0 },
+                    { question: "Which word is spelled correctly?", options: ["Seperate", "Separate", "Separete", "Seperete"], correct: 1 },
+                    { question: "What is the synonym of 'brief'?", options: ["Long", "Short", "Tall", "Wide"], correct: 1 },
+                    { question: "Which sentence uses correct subject-verb agreement?", options: ["The dogs runs.", "The dogs run.", "The dog run.", "The dogs is running."], correct: 1 },
+                    { question: "What is the antonym of 'complex'?", options: ["Simple", "Difficult", "Hard", "Complicated"], correct: 0 },
+                    { question: "Which is a gerund?", options: ["Run", "Running", "Runner", "Ran"], correct: 1 },
+                    { question: "What is the meaning of 'alliteration'?", options: ["Repetition of sounds", "A comparison", "An exaggeration", "A question"], correct: 0 },
+                    { question: "Which sentence is in active voice?", options: ["The cake was eaten.", "She ate the cake.", "The cake is eaten.", "The cake eats."], correct: 1 },
+                    { question: "What is the plural of 'datum'?", options: ["Data", "Datums", "Datas", "Datum"], correct: 0 },
+                    { question: "Which word is an antonym of 'vivid'?", options: ["Bright", "Dull", "Colorful", "Lively"], correct: 1 },
+                    { question: "Which sentence uses a semicolon correctly?", options: ["I like tea; coffee.", "I like tea; I also like coffee.", "I like; tea and coffee.", "I like tea, coffee."], correct: 1 }
+                ]
+            }
+        };
+
+        // Savollarni aralashtirish funksiyasi
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        let selectedDifficulty = '';
+        let selectedSubject = '';
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let timeLeft = 20;
+        let timer;
+        let quizStarted = false;
+        let shuffledQuestions = []; // Aralashtirilgan savollar uchun
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.style.display = 'none';
+            });
+            document.getElementById(pageId).style.display = 'flex';
+        }
+
+        function selectDifficulty(difficulty) {
+            selectedDifficulty = difficulty;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            updateQuizInfo();
+            checkStartButton();
+        }
+
+        function selectSubject(subject) {
+            selectedSubject = subject;
+            document.querySelectorAll('.subject-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            checkStartButton();
+        }
+
+        function updateQuizInfo() {
+            if (selectedDifficulty) {
+                const timePerQuestion = selectedDifficulty === 'beginner' ? 20 : selectedDifficulty === 'intermediate' ? 40 : 60;
+                document.getElementById('quizInfo').textContent = `20 questions • ${timePerQuestion} seconds per question`;
+            }
+        }
+
+        function checkStartButton() {
+            if (selectedDifficulty && selectedSubject) {
+                document.getElementById('startBtn').disabled = false;
+            }
+        }
+
+        function startQuiz() {
+            if (!selectedSubject || !selectedDifficulty) return;
+            
+            // Savollarni shuffle qilish
+            shuffledQuestions = shuffleArray(questions[selectedSubject][selectedDifficulty]);
+            
+            showPage('quizPage');
+            quizStarted = true;
+            currentQuestion = 0;
+            userAnswers = [];
+            timeLeft = selectedDifficulty === 'beginner' ? 20 : selectedDifficulty === 'intermediate' ? 40 : 60;
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            const question = shuffledQuestions[currentQuestion]; // O'zgartirilgan qator
+            document.getElementById('question').textContent = question.question;
+            document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} of 20`;
+            const progress = ((currentQuestion + 1) / 20) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+            timeLeft = selectedDifficulty === 'beginner' ? 20 : selectedDifficulty === 'intermediate' ? 40 : 60;
+            document.getElementById('nextBtn').disabled = true;
+            updateTimerDisplay();
+        }
+
+        function selectOption(index) {
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelectorAll('.option')[index].classList.add('selected');
+            userAnswers[currentQuestion] = index;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === undefined) {
+                userAnswers[currentQuestion] = -1;
+            }
+            currentQuestion++;
+            if (currentQuestion >= 20) {
+                finishQuiz();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function updateTimerDisplay() {
+            const maxTime = selectedDifficulty === 'beginner' ? 20 : selectedDifficulty === 'intermediate' ? 40 : 60;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft <= maxTime * 0.25) {
+                timerElement.classList.add('warning');
+            } else {
+                timerElement.classList.remove('warning');
+            }
+        }
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    if (userAnswers[currentQuestion] === undefined) {
+                        userAnswers[currentQuestion] = -1;
+                    }
+                    if (currentQuestion < 19) {
+                        nextQuestion();
+                    } else {
+                        finishQuiz();
+                    }
+                }
+            }, 1000);
+        }
+
+        function finishQuiz() {
+            clearInterval(timer);
+            let correct = 0;
+            const results = [];
+            for (let i = 0; i < 20; i++) {
+                const question = shuffledQuestions[i]; // O'zgartirilgan qator
+                const userAnswer = userAnswers[i];
+                const isCorrect = userAnswer === question.correct;
+                if (isCorrect) correct++;
+                results.push({
+                    question: question.question,
+                    options: question.options,
+                    correctAnswer: question.correct,
+                    userAnswer: userAnswer,
+                    isCorrect: isCorrect
+                });
+            }
+            showPage('resultsPage');
+            displayResults({
+                subject: selectedSubject,
+                difficulty: selectedDifficulty,
+                score: correct,
+                total: 20,
+                results: results
+            });
+        }
+
+        function displayResults(resultsData) {
+            document.getElementById('subjectBadge').textContent = 
+                `${resultsData.subject.charAt(0).toUpperCase() + resultsData.subject.slice(1)} - ${
+                resultsData.difficulty.charAt(0).toUpperCase() + resultsData.difficulty.slice(1)}`;
+            document.getElementById('scoreNumber').textContent = `${resultsData.score}/${resultsData.total}`;
+            const percentage = (resultsData.score / resultsData.total) * 100;
+            let scoreText = '';
+            if (percentage >= 90) scoreText = 'Excellent work! 🌟';
+            else if (percentage >= 80) scoreText = 'Great job! 👏';
+            else if (percentage >= 70) scoreText = 'Good effort! 👍';
+            else if (percentage >= 60) scoreText = 'Keep practicing! 📚';
+            else scoreText = 'Don\'t give up! Try again! 💪';
+            document.getElementById('scoreText').textContent = scoreText;
+            let correct = 0, incorrect = 0, unanswered = 0;
+            resultsData.results.forEach(result => {
+                if (result.userAnswer === -1) unanswered++;
+                else if (result.isCorrect) correct++;
+                else incorrect++;
+            });
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('incorrectCount').textContent = incorrect;
+            document.getElementById('unansweredCount').textContent = unanswered;
+            const detailedContainer = document.getElementById('detailedResults');
+            detailedContainer.innerHTML = '';
+            resultsData.results.forEach((result, index) => {
+                const questionDiv = document.createElement('div');
+                let statusClass = '';
+                let statusText = '';
+                let userAnswerText = '';
+                if (result.userAnswer === -1) {
+                    statusClass = 'unanswered';
+                    statusText = 'Unanswered';
+                    userAnswerText = 'No answer provided';
+                } else if (result.isCorrect) {
+                    statusClass = 'correct';
+                    statusText = 'Correct';
+                    userAnswerText = result.options[result.userAnswer];
+                } else {
+                    statusClass = 'incorrect';
+                    statusText = 'Incorrect';
+                    userAnswerText = result.options[result.userAnswer];
+                }
+                questionDiv.className = `question-result ${statusClass}`;
+                questionDiv.innerHTML = `
+                    <div class="question-text">Question ${index + 1}: ${result.question}</div>
+                    <div class="answer-row">
+                        <span class="answer-label">Your Answer:</span>
+                        <span class="answer-value user-answer ${statusClass}">${userAnswerText}</span>
+                        <span class="status-badge status-${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="answer-row">
+                        <span class="answer-label">Correct Answer:</span>
+                        <span class="answer-value correct-answer">${result.options[result.correctAnswer]}</span>
+                    </div>
+                `;
+                detailedContainer.appendChild(questionDiv);
+            });
+        }
+
+        function restartQuiz() {
+            selectedDifficulty = '';
+            selectedSubject = '';
+            currentQuestion = 0;
+            userAnswers = [];
+            timeLeft = 20;
+            quizStarted = false;
+            shuffledQuestions = []; // Reset qilish
+            if (timer) clearInterval(timer);
+            document.querySelectorAll('.difficulty-btn, .subject-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('quizInfo').textContent = 'Please select difficulty and subject';
+            showPage('selectionPage');
+        }
+    </script>
+</body>
+</html>
